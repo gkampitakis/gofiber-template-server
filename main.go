@@ -12,18 +12,25 @@ func main() {
 	app_config := configs.NewAppConfig()
 	app := SetupServer(app_config.IsDevelopment)
 
-	utils.StartServerWithGracefulShutdown(app, app_config)
+	utils.StartServer(app, app_config)
 }
 
 func SetupServer(isDevelopment bool) *fiber.App {
 	app := fiber.New()
 	middleware.FiberMiddleware(app, isDevelopment)
+	utils.RegisterHealthchecks(app)
 
-	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.JSON(map[string]string{
-			"status": "healthy",
-		})
-	})
+	/**
+	--- Example healthcheck ---
+	checks := []func(c chan utils.HealthcheckResult){
+		func(c chan utils.HealthcheckResult) {
+			go func() {
+				time.Sleep(time.Second * 6)
+				c <- utils.HealthcheckResult{Label: "postgres", Result: true}
+			}()
+		},
+	}
+	*/
 
 	return app
 }

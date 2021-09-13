@@ -36,3 +36,14 @@ func StartServerWithGracefulShutdown(app *fiber.App, config *configs.AppConfig) 
 		break
 	}
 }
+
+func StartServer(app *fiber.App, config *configs.AppConfig) {
+	if !config.IsDevelopment {
+		StartServerWithGracefulShutdown(app, config)
+		return
+	}
+
+	if err := app.Listen(config.Host + ":" + config.Port); err != nil {
+		Logger.Panic(err.Error())
+	}
+}

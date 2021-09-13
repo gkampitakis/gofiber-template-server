@@ -1,8 +1,11 @@
 package configs
 
 import (
+	"log"
 	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 type AppConfig struct {
@@ -15,9 +18,21 @@ type AppConfig struct {
 
 func NewAppConfig() *AppConfig {
 	isDevelopment := os.Getenv("GO_ENV") != "production"
+
+	if isDevelopment {
+		err := godotenv.Load()
+		if err != nil {
+			log.Println("[App Config]", err.Error())
+		}
+	}
+
 	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "8080"
+	}
+	host := "0.0.0.0"
+	if isDevelopment {
+		host = "localhost"
 	}
 
 	shutdownPeriod, err := time.ParseDuration(os.Getenv("SHUTDOWN_PERIOD"))
@@ -26,7 +41,7 @@ func NewAppConfig() *AppConfig {
 	}
 
 	return &AppConfig{
-		Host:           "0.0.0.0",
+		Host:           host,
 		Port:           port,
 		ShutdownPeriod: shutdownPeriod,
 		IsDevelopment:  isDevelopment,
