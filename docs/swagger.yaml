@@ -1,0 +1,43 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    email: gkabitakis@gmail.com
+    name: gkampitakis
+  description: Template for spinning up a gofiber server
+  license:
+    name: https://opensource.org/licenses/MIT
+  title: Gofiber Template Server
+  version: 1.0.0
+paths:
+  /:
+    get:
+      consumes:
+      - text/plain
+      description: Default func prints hello world
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Prints Hello World
+      tags:
+      - template
+  /hello/:name:
+    get:
+      consumes:
+      - text/plain
+      description: Hello func just Greets with the name provided in params
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Greets user
+      tags:
+      - template
+swagger: "2.0"
