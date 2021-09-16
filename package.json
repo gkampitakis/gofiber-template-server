@@ -1,0 +1,13 @@
+{
+  "name": "gofiber-template-server",
+  "version": "1.0.0",
+  "description": "Template for spinning up a gofiber server",
+  "repository": "https://github.com/gkampitakis/gofiber-template-server.git",
+  "author": "gkampitakis <gkabitakis@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/git": "^9.0.1",
+    "semantic-release": "^17.4.7"
+  }
+}

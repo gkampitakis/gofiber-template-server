@@ -9,8 +9,12 @@ Makefile
 LICENSE
 **/*.md
 **/*_test.go
+.releaserc.json
+package.json
+yarn.lock
 
 # Folders
+node_modules
 .git/
 .github/
 build/

@@ -7,16 +7,18 @@ K := $(foreach exec,$(EXECUTABLES),\
 run: build
 	./build/$(APP_NAME)
 
-dev:
-	(cp -n .env.example .env && echo "created .env") || echo "file already exists"
+dev: __cp_env
 	nodemon --exec go run main.go --signal SIGTERM
 
 clean:
 	rm -rf ./build
 	rm -rf .env
 
-build: clean 
-	cp -u .env.example .env
+__cp_env:
+	(cp -n .env.example .env && echo "created .env") || echo "file already exists"
+
+build: clean
+	cp -n .env.example .env
 	CGO_ENABLED=0 go build -ldflags="-w -s" -o $(BUILD_DIR)/$(APP_NAME) main.go
 
 help:
