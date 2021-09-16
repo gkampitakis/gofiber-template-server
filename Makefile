@@ -23,16 +23,17 @@ help:
 	@echo 'Application: $(APP_NAME)'
 	@echo
 	@echo 'Usage:'
-	@echo '    make dev										Run project with hot reload ( needs nodemon installed )
-	@echo '    make run                   Running project for development (enabled pprof)'
+	@echo '    make dev										Run project with hot reload (needs nodemon installed)
+	@echo '    make run                   Running project for development (enabled pprof)
+	@echo '    make test                  Run unit tests (you can pass -v for logs or debugging)
 	@echo '    make clean                 Delete ./build and .env'
 	@echo '    make build                 Build application and copy the .env file'
 	@echo '    make unit-test             Run unit tests'
 	@echo '    make integration-tests     Run integration tests (First you need to start docker make docker-start)'
 	@echo
 
-unit-tests:
-	go test -run Unit ./...
+test:
+	go test ./...
 
 docker-start:
 	@echo 'After running tests you can stop docker with `make docker-stop`'
@@ -40,6 +41,3 @@ docker-start:
 
 docker-stop:
 	docker-compose down
-
-integration-tests:
-	go test -run Integration -p=1 -v

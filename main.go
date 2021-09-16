@@ -35,7 +35,9 @@ func SetupServer(isDevelopment bool) *fiber.App {
 	Register Routes
 	*/
 	routes.AppRoutes(app)
-	routes.SwaggerRoute(app)
+	if isDevelopment {
+		routes.SwaggerRoute(app)
+	}
 
 	/**
 	--- Example healthcheck ---

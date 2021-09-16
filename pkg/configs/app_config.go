@@ -3,6 +3,7 @@ package configs
 import (
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -34,8 +35,7 @@ func NewAppConfig() *AppConfig {
 	if isDevelopment {
 		host = "localhost"
 	}
-
-	shutdownPeriod, err := time.ParseDuration(os.Getenv("SHUTDOWN_PERIOD"))
+	shutdownPeriod, err := strconv.Atoi(os.Getenv("SHUTDOWN_PERIOD"))
 	if err != nil {
 		shutdownPeriod = 10
 	}
@@ -43,7 +43,7 @@ func NewAppConfig() *AppConfig {
 	return &AppConfig{
 		Host:           host,
 		Port:           port,
-		ShutdownPeriod: shutdownPeriod,
+		ShutdownPeriod: time.Duration(shutdownPeriod),
 		IsDevelopment:  isDevelopment,
 	}
 }
