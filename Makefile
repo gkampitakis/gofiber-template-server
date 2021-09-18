@@ -37,7 +37,7 @@ help:
 	@echo '    make integration-tests     Run integration tests (First you need to start docker make docker-start)'
 	@echo
 
-test:
+test: lint
 	go test ./...
 
 docker-start:
