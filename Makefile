@@ -1,6 +1,6 @@
 APP_NAME = gofiber-template-server
 BUILD_DIR = ${PWD}/build
-EXECUTABLES = docker nodemon
+EXECUTABLES = docker nodemon golangci-lint
 K := $(foreach exec,$(EXECUTABLES),\
         $(if $(shell which $(exec)),some string,$(warning "No $(exec) in PATH")))
 
@@ -16,6 +16,9 @@ clean:
 
 __cp_env:
 	(cp -n .env.example .env && echo "created .env") || echo "file already exists"
+
+lint: 
+	golangci-lint run
 
 build: clean
 	cp -n .env.example .env
