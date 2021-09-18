@@ -16,7 +16,7 @@ func StartServerWithGracefulShutdown(app *fiber.App, config *configs.AppConfig) 
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		_ = <-c
+		<-c
 		Logger.Info("Gracefully shutting down ...")
 		err := app.Shutdown()
 		if err != nil {
