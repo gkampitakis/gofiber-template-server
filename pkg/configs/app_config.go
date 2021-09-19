@@ -2,7 +2,6 @@ package configs
 
 import (
 	"log"
-	"os"
 	"strconv"
 	"time"
 
@@ -18,7 +17,7 @@ type AppConfig struct {
 }
 
 func NewAppConfig() *AppConfig {
-	isDevelopment := os.Getenv("GO_ENV") != "production"
+	isDevelopment := GetEnv("GO_ENV") != "production"
 
 	if isDevelopment {
 		err := godotenv.Load()
@@ -27,17 +26,15 @@ func NewAppConfig() *AppConfig {
 		}
 	}
 
-	port := os.Getenv("APP_PORT")
-	if port == "" {
-		port = "8080"
-	}
+	port := GetEnv("APP_PORT", "8080")
 	host := "0.0.0.0"
 	if isDevelopment {
 		host = "localhost"
 	}
-	shutdownPeriod, err := strconv.Atoi(os.Getenv("SHUTDOWN_PERIOD"))
+	shutdownPeriod, err := strconv.Atoi(GetEnv("SHUTDOWN_PERIOD", "10"))
 	if err != nil {
 		shutdownPeriod = 10
+		log.Printf("[SHUTDOWN_PERIOD] incorrect value, defaulting to %d", shutdownPeriod)
 	}
 
 	return &AppConfig{
