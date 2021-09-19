@@ -31,10 +31,10 @@ func NewAppConfig() *AppConfig {
 	if isDevelopment {
 		host = "localhost"
 	}
-	shutdownPeriod, err := strconv.Atoi(GetEnv("SHUTDOWN_PERIOD", "10"))
+	shutdownPeriod, err := strconv.Atoi(GetEnv("APP_SHUTDOWN_PERIOD", "10"))
 	if err != nil {
 		shutdownPeriod = 10
-		log.Printf("[SHUTDOWN_PERIOD] incorrect value, defaulting to %d", shutdownPeriod)
+		log.Printf("[APP_SHUTDOWN_PERIOD] incorrect value, defaulting to %d", shutdownPeriod)
 	}
 
 	return &AppConfig{

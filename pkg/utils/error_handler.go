@@ -1,10 +1,14 @@
 package utils
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"net/http"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 func ErrorHandler(c *fiber.Ctx, e error) error {
-	return c.Status(500).JSON(map[string]interface{}{
-		"status":  500,
+	return c.Status(http.StatusInternalServerError).JSON(map[string]interface{}{
+		"status":  http.StatusInternalServerError,
 		"message": "Internal Server Error",
 	})
 }

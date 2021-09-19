@@ -42,7 +42,7 @@ func registerHealthRoute(controls HealthcheckMap, config *configs.HealthcheckCon
 					return
 				}
 
-				status = 500
+				status = http.StatusInternalServerError
 				response[label] = "unhealthy"
 			}(label, control)
 		}
@@ -60,7 +60,7 @@ func registerHealthRoute(controls HealthcheckMap, config *configs.HealthcheckCon
 
 func initializeResponse(checks HealthcheckMap, config *configs.HealthcheckConfig) (m map[string]string, status int) {
 	m = make(map[string]string, len(checks))
-	status = 200
+	status = http.StatusOK
 
 	if !config.TimeoutEnabled {
 		return m, status
@@ -77,7 +77,7 @@ func timeout(config *configs.HealthcheckConfig, status *int, c <-chan bool) {
 	if config.TimeoutEnabled {
 		select {
 		case <-time.After(time.Second * config.TimeoutPeriod):
-			*status = 500
+			*status = http.StatusInternalServerError
 		case <-c:
 		}
 

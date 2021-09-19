@@ -18,12 +18,12 @@ func getEnvFilePath() string {
 func clearEnv() {
 	os.Unsetenv("GO_ENV")
 	os.Unsetenv("APP_PORT")
-	os.Unsetenv("SHUTDOWN_PERIOD")
+	os.Unsetenv("APP_SHUTDOWN_PERIOD")
 	os.Remove(getEnvFilePath())
 }
 
 func setEnvFile(t *testing.T, port, shutdownPeriod string) {
-	data := []byte(fmt.Sprintf("APP_PORT=%s\nSHUTDOWN_PERIOD=%s", port, shutdownPeriod))
+	data := []byte(fmt.Sprintf("APP_PORT=%s\nAPP_SHUTDOWN_PERIOD=%s", port, shutdownPeriod))
 	err := os.WriteFile(getEnvFilePath(), data, 0777)
 	if err != nil {
 		t.Error(err)
