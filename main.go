@@ -27,7 +27,10 @@ func main() {
 }
 
 func SetupServer(isDevelopment bool) *fiber.App {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler:          utils.ErrorHandler,
+		DisableStartupMessage: !isDevelopment,
+	})
 	middleware.FiberMiddleware(app, isDevelopment)
 	utils.RegisterHealthchecks(app)
 
