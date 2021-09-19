@@ -1,44 +1,87 @@
 package utils
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"fmt"
+	"log"
+	"sync"
+	"time"
 
-type HealthcheckResult struct {
-	_      struct{}
-	Result bool
-	Label  string
+	"github.com/gkampitakis/gofiber-template-server/pkg/configs"
+	"github.com/gofiber/fiber/v2"
+)
+
+type HealthcheckMap map[string]func() bool
+
+func RegisterHealthchecks(app *fiber.App, controls ...HealthcheckMap) {
+	if len(controls) > 1 {
+		log.Println("[Warning] only the 1st element is used")
+	}
+
+	app.Get("/health", registerHealthRoute(controls[0], configs.NewHealthcheckConfig()))
 }
-type HealthcheckControll func(result chan HealthcheckResult)
 
-func RegisterHealthchecks(app *fiber.App, controls ...HealthcheckControll) {
-	app.Get("/health", registerHealthRoute(controls...))
-}
-
-func registerHealthRoute(controls ...HealthcheckControll) func(c *fiber.Ctx) error {
+func registerHealthRoute(controls HealthcheckMap, config *configs.HealthcheckConfig) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		health := make(chan HealthcheckResult)
-		response := make(map[string]string)
-		status := 200
+		closeChannel := make(chan bool)
+		wg := sync.WaitGroup{}
 		controlsLength := len(controls)
+		response, status := initializeResponse(controls, config)
+
+		wg.Add(controlsLength)
 
 		if controlsLength == 0 {
 			response["status"] = "healthy"
 		}
 
-		for _, control := range controls {
-			control(health)
+		for label, control := range controls {
+			go func(label string, control func() bool) {
+				defer wg.Done()
+				res := control()
+				if res {
+					response[label] = "healthy"
+					return
+				}
+
+				status = 500
+				response[label] = "unhealthy"
+			}(label, control)
 		}
 
-		for i := 0; i < controlsLength; i++ {
-			c := <-health
-			if c.Result {
-				response[c.Label] = "healthy"
-				continue
-			}
+		go func() {
+			defer close(closeChannel)
+			wg.Wait()
+		}()
 
-			response[c.Label] = "unhealthy"
-			status = 500
-		}
+		timeout(config, &status, closeChannel)
 
 		return c.Status(status).JSON(response)
 	}
+}
+
+func initializeResponse(checks HealthcheckMap, config *configs.HealthcheckConfig) (m map[string]string, status int) {
+	m = make(map[string]string, len(checks))
+	status = 200
+
+	if !config.TimeoutEnabled {
+		return m, status
+	}
+
+	for label := range checks {
+		m[label] = fmt.Sprintf("Timeout after %d seconds", config.TimeoutPeriod)
+	}
+
+	return m, status
+}
+
+func timeout(config *configs.HealthcheckConfig, status *int, c <-chan bool) {
+	if config.TimeoutEnabled {
+		select {
+		case <-time.After(time.Second * config.TimeoutPeriod):
+			*status = 500
+		case <-c:
+		}
+
+		return
+	}
+	<-c
 }

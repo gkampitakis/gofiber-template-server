@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	_ "github.com/gkampitakis/gofiber-template-server/docs"
 	"github.com/gkampitakis/gofiber-template-server/pkg/configs"
 	"github.com/gkampitakis/gofiber-template-server/pkg/middleware"
@@ -32,7 +34,6 @@ func SetupServer(isDevelopment bool) *fiber.App {
 		DisableStartupMessage: !isDevelopment,
 	})
 	middleware.FiberMiddleware(app, isDevelopment)
-	utils.RegisterHealthchecks(app)
 
 	/**
 	Register Routes
@@ -44,15 +45,23 @@ func SetupServer(isDevelopment bool) *fiber.App {
 
 	/**
 	--- Example healthcheck ---
-	checks := []func(c chan utils.HealthcheckResult){
-		func(c chan utils.HealthcheckResult) {
-			go func() {
-				time.Sleep(time.Second * 6)
-				c <- utils.HealthcheckResult{Label: "postgres", Result: true}
-			}()
-		},
-	}
 	*/
 
+	checks := utils.HealthcheckMap{
+		"test": func() bool {
+			time.Sleep(4 * time.Second)
+			return true
+		},
+		"test2": func() bool {
+			time.Sleep(3 * time.Second)
+			return true
+		},
+		"test3": func() bool {
+			time.Sleep(10 * time.Second)
+			return true
+		},
+	}
+
+	utils.RegisterHealthchecks(app, checks)
 	return app
 }
