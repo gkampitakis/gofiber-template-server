@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"sync"
 	"time"
 
@@ -12,28 +13,40 @@ import (
 
 type HealthcheckMap map[string]func() bool
 
-func RegisterHealthchecks(app *fiber.App, controls ...HealthcheckMap) {
-	if len(controls) > 1 {
+func RegisterHealthchecks(app *fiber.App, checks ...HealthcheckMap) {
+	if len(checks) > 1 {
 		log.Println("[Warning] only the 1st element is used")
 	}
 
-	app.Get("/health", registerHealthRoute(controls[0], configs.NewHealthcheckConfig()))
+	var _checks HealthcheckMap
+
+	if len(checks) == 0 {
+		_checks = make(HealthcheckMap)
+	} else {
+		_checks = checks[0]
+	}
+
+	app.Get("/health", registerHealthRoute(configs.NewHealthcheckConfig(), _checks))
 }
 
-func registerHealthRoute(controls HealthcheckMap, config *configs.HealthcheckConfig) func(c *fiber.Ctx) error {
+// FIXME: register this route to swagger
+func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMap) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		closeChannel := make(chan bool)
-		wg := sync.WaitGroup{}
-		controlsLength := len(controls)
-		response, status := initializeResponse(controls, config)
+		checksLength := len(checks)
+		response, status := initializeResponse(checks, config)
 
-		wg.Add(controlsLength)
-
-		if controlsLength == 0 {
+		// If we don't pass checks we prematurely respond as healthy, nothing to "check"
+		if checksLength == 0 {
 			response["status"] = "healthy"
+			return c.Status(status).JSON(response)
 		}
 
-		for label, control := range controls {
+		closeChannel := make(chan bool)
+		wg := sync.WaitGroup{}
+
+		wg.Add(checksLength)
+
+		for label, control := range checks {
 			go func(label string, control func() bool) {
 				defer wg.Done()
 				res := control()
