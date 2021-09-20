@@ -11,7 +11,6 @@ import (
 // FiberMiddleware provide Fiber's built-in middlewares.
 // See: https://docs.gofiber.io/api/middleware
 func FiberMiddleware(a *fiber.App, isDevelopment bool) {
-
 	if isDevelopment {
 		a.Use(pprof.New())
 	}

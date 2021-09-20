@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gkampitakis/gofiber-template-server/pkg/configs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +14,7 @@ func TestServer(t *testing.T) {
 	t.Run("setup server", func(t *testing.T) {
 		t.Run("Development", func(t *testing.T) {
 			t.Run("profilling route should be enabled", func(t *testing.T) {
-				app := SetupServer(true)
+				app := SetupServer(configs.NewHealthcheckConfig(), true)
 
 				req, err := http.NewRequest(
 					"GET",
@@ -35,7 +36,7 @@ func TestServer(t *testing.T) {
 			})
 
 			t.Run("swagger route should be enabled", func(t *testing.T) {
-				app := SetupServer(true)
+				app := SetupServer(configs.NewHealthcheckConfig(), true)
 
 				req, err := http.NewRequest(
 					"GET",
@@ -59,7 +60,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("Production", func(t *testing.T) {
 			t.Run("profilling route should be disabled", func(t *testing.T) {
-				app := SetupServer(false)
+				app := SetupServer(configs.NewHealthcheckConfig(), false)
 
 				req, err := http.NewRequest(
 					"GET",
@@ -79,7 +80,7 @@ func TestServer(t *testing.T) {
 			})
 
 			t.Run("swagger route should be disabled", func(t *testing.T) {
-				app := SetupServer(false)
+				app := SetupServer(configs.NewHealthcheckConfig(), false)
 
 				req, err := http.NewRequest(
 					"GET",
@@ -102,7 +103,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("routes", func(t *testing.T) {
 		t.Run("[/] should greet", func(t *testing.T) {
-			app := SetupServer(false)
+			app := SetupServer(configs.NewHealthcheckConfig(), false)
 
 			req, err := http.NewRequest(
 				"GET",
@@ -124,7 +125,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("[/hello/:name] should greet with name", func(t *testing.T) {
-			app := SetupServer(false)
+			app := SetupServer(configs.NewHealthcheckConfig(), false)
 
 			req, err := http.NewRequest(
 				"GET",
@@ -147,7 +148,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("[/health] should respond healthy", func(t *testing.T) {
 			bodyMap := make(map[string]string)
-			app := SetupServer(false)
+			app := SetupServer(configs.NewHealthcheckConfig(), false)
 
 			req, err := http.NewRequest(
 				"GET",

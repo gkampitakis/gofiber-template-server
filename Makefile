@@ -10,6 +10,9 @@ run: build
 dev: __cp_env
 	nodemon --exec go run main.go --signal SIGTERM
 
+depencies:
+	go mod download
+
 clean:
 	rm -rf ./build
 	rm -rf .env
@@ -28,17 +31,17 @@ help:
 	@echo 'Application: $(APP_NAME)'
 	@echo
 	@echo 'Usage:'
-	@echo '    make dev										Run project with hot reload (needs nodemon installed)
-	@echo '    make run                   Running project for development (enabled pprof)
-	@echo '    make test                  Run unit tests (you can pass -v for logs or debugging)
+	@echo '    make dependecies           Download depencies needed for running ${APP_NAME}'
+	@echo '    make dev                   Run project with hot reload (needs nodemon installed)'
+	@echo '    make run                   Running project for development (enabled pprof)'
+	@echo '    make test                  Run unit tests (you can pass -v for logs or debugging)'
 	@echo '    make clean                 Delete ./build and .env'
 	@echo '    make build                 Build application and copy the .env file'
 	@echo '    make unit-test             Run unit tests'
-	@echo '    make integration-tests     Run integration tests (First you need to start docker make docker-start)'
 	@echo
 
 test: lint
-	go test ./...
+	go test ./... -race
 
 docker-start:
 	@echo 'After running tests you can stop docker with `make docker-stop`'

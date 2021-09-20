@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"runtime"
 	"sync"
 	"time"
 
@@ -12,30 +14,51 @@ import (
 
 type HealthcheckMap map[string]func() bool
 
-func RegisterHealthchecks(app *fiber.App, controls ...HealthcheckMap) {
-	if len(controls) > 1 {
+func RegisterHealthchecks(app *fiber.App, hc_config *configs.HealthcheckConfig, checks ...HealthcheckMap) {
+	if len(checks) > 1 {
 		log.Println("[Warning] only the 1st element is used")
 	}
 
-	app.Get("/health", registerHealthRoute(controls[0], configs.NewHealthcheckConfig()))
+	var _checks HealthcheckMap
+
+	if len(checks) == 0 {
+		_checks = make(HealthcheckMap)
+	} else {
+		_checks = checks[0]
+	}
+
+	app.Get("/health", registerHealthRoute(hc_config, _checks))
 }
 
-func registerHealthRoute(controls HealthcheckMap, config *configs.HealthcheckConfig) func(c *fiber.Ctx) error {
+// FIXME: register this route to swagger
+func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMap) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		closeChannel := make(chan bool)
-		wg := sync.WaitGroup{}
-		controlsLength := len(controls)
-		response, status := initializeResponse(controls, config)
+		Logger.Info(fmt.Sprintf("goroutines: %d", runtime.NumGoroutine())) //FIXME:
+		checksLength := len(checks)
+		response, status := initializeResponse(checks, config)
 
-		wg.Add(controlsLength)
-
-		if controlsLength == 0 {
+		// If we don't pass checks we prematurely respond as healthy, nothing to "check"
+		if checksLength == 0 {
 			response["status"] = "healthy"
+			return c.Status(status).JSON(response)
 		}
 
-		for label, control := range controls {
+		closeChannel := make(chan bool)
+		wg := sync.WaitGroup{}
+
+		wg.Add(checksLength)
+
+		for label, control := range checks {
 			go func(label string, control func() bool) {
+				/**
+				To future self, deferred function calles are push onto a stack. When function
+				returns, its deferred called are executed in LIFO order. ⬇️ in this case
+				we are adding first the done call and then the handlePanic but in case of panic
+				we first call done and then handle panic and set status as 500 creating race conditions
+				of setting status and responding to request.
+				*/
 				defer wg.Done()
+				defer handlePanic(response, label, &status)
 				res := control()
 				if res {
 					response[label] = "healthy"
@@ -84,4 +107,11 @@ func timeout(config *configs.HealthcheckConfig, status *int, c <-chan bool) {
 		return
 	}
 	<-c
+}
+
+func handlePanic(response map[string]string, label string, status *int) {
+	if e := recover(); e != nil {
+		response[label] = fmt.Errorf("Paniced with error: %v", e).Error()
+		*status = http.StatusInternalServerError
+	}
 }
