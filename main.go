@@ -22,12 +22,13 @@ import (
 // @BasePath /
 func main() {
 	app_config := configs.NewAppConfig()
-	app := SetupServer(app_config.IsDevelopment)
+	hc_config := configs.NewHealthcheckConfig()
+	app := SetupServer(hc_config, app_config.IsDevelopment)
 
 	utils.StartServer(app, app_config)
 }
 
-func SetupServer(isDevelopment bool) *fiber.App {
+func SetupServer(hc_config *configs.HealthcheckConfig, isDevelopment bool) *fiber.App {
 	app := fiber.New(fiber.Config{
 		ErrorHandler:          utils.ErrorHandler,
 		DisableStartupMessage: !isDevelopment,
@@ -65,9 +66,9 @@ func SetupServer(isDevelopment bool) *fiber.App {
 		}
 
 		and pass it to
-		RegisterHealthchecks(app, checks)
+		RegisterHealthchecks(app, hc_config, checks)
 	*/
 
-	utils.RegisterHealthchecks(app)
+	utils.RegisterHealthchecks(app, hc_config)
 	return app
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 	"sync"
 	"time"
 
@@ -13,7 +14,7 @@ import (
 
 type HealthcheckMap map[string]func() bool
 
-func RegisterHealthchecks(app *fiber.App, checks ...HealthcheckMap) {
+func RegisterHealthchecks(app *fiber.App, hc_config *configs.HealthcheckConfig, checks ...HealthcheckMap) {
 	if len(checks) > 1 {
 		log.Println("[Warning] only the 1st element is used")
 	}
@@ -26,12 +27,13 @@ func RegisterHealthchecks(app *fiber.App, checks ...HealthcheckMap) {
 		_checks = checks[0]
 	}
 
-	app.Get("/health", registerHealthRoute(configs.NewHealthcheckConfig(), _checks))
+	app.Get("/health", registerHealthRoute(hc_config, _checks))
 }
 
 // FIXME: register this route to swagger
 func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMap) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
+		Logger.Info(fmt.Sprintf("goroutines: %d", runtime.NumGoroutine())) //FIXME:
 		checksLength := len(checks)
 		response, status := initializeResponse(checks, config)
 
@@ -48,7 +50,15 @@ func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMa
 
 		for label, control := range checks {
 			go func(label string, control func() bool) {
+				/**
+				To future self, deferred function calles are push onto a stack. When function
+				returns, its deferred called are executed in LIFO order. ⬇️ in this case
+				we are adding first the done call and then the handlePanic but in case of panic
+				we first call done and then handle panic and set status as 500 creating race conditions
+				of setting status and responding to request.
+				*/
 				defer wg.Done()
+				defer handlePanic(response, label, &status)
 				res := control()
 				if res {
 					response[label] = "healthy"
@@ -97,4 +107,11 @@ func timeout(config *configs.HealthcheckConfig, status *int, c <-chan bool) {
 		return
 	}
 	<-c
+}
+
+func handlePanic(response map[string]string, label string, status *int) {
+	if e := recover(); e != nil {
+		response[label] = fmt.Errorf("Paniced with error: %v", e).Error()
+		*status = http.StatusInternalServerError
+	}
 }
