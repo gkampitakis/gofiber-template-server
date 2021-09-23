@@ -52,6 +52,38 @@ var doc = `{
                 }
             }
         },
+        "/health": {
+            "get": {
+                "description": "Route reporting health of service",
+                "consumes": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Healthcheck route",
+                "responses": {
+                    "200": {
+                        "description": "This can be dynamic and add more fields in checks",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The route can return 500 in case of failed check,timeouts or panic",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/hello/:name": {
             "get": {
                 "description": "Hello func just Greets with the name provided in params",

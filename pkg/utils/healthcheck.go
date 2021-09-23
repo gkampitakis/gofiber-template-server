@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"runtime"
 	"sync"
 	"time"
 
@@ -30,10 +29,16 @@ func RegisterHealthchecks(app *fiber.App, hc_config *configs.HealthcheckConfig, 
 	app.Get("/health", registerHealthRoute(hc_config, _checks))
 }
 
-// FIXME: register this route to swagger
+// @Description Route reporting health of service
+// @Summary Healthcheck route
+// @Tags health
+// @Accept text/plain
+// @Product json/application
+// @Success 200 {object} map[string]string "This can be dynamic and add more fields in checks"
+// @Failure 500 {object} map[string]string "The route can return 500 in case of failed check,timeouts or panic"
+// @Router /health [get]
 func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMap) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		Logger.Info(fmt.Sprintf("goroutines: %d", runtime.NumGoroutine())) //FIXME:
 		checksLength := len(checks)
 		response, status := initializeResponse(checks, config)
 

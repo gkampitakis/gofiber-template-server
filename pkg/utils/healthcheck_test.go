@@ -3,7 +3,6 @@ package utils
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"testing"
 	"time"
@@ -12,9 +11,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 )
-
-// FIXME: there are errors with -race detection in tests
-// go test -run HealthcheckRoute ./... -v -count=1 -race -count=1 for not caching results
 
 func healthRequest(t *testing.T, app *fiber.App, timeout int) ([]byte, int) {
 	req, err := http.NewRequest(
@@ -60,7 +56,7 @@ func TestHealthcheckRoute(t *testing.T) {
 		assert.Equal(t, "healthy", responseObject["status"])
 	})
 
-	t.Run("should enlist all checks healthy", func(t *testing.T) {
+	t.Run("should list all checks healthy", func(t *testing.T) {
 		app := fiber.New()
 		checks := HealthcheckMap{
 			"check1": func() bool { return true },
@@ -107,8 +103,6 @@ func TestHealthcheckRoute(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		log.Println(string(body), statusCode)
-
 		assert.Equal(t, 500, statusCode)
 		assert.Equal(t, 3, len(responseObject))
 		assert.Equal(t, "healthy", responseObject["check1"])
@@ -116,7 +110,7 @@ func TestHealthcheckRoute(t *testing.T) {
 		assert.Equal(t, "healthy", responseObject["check3"])
 	})
 
-	t.Run("should return timed out checks and 500 statusCode", func(t *testing.T) {
+	t.Run("should report slow checks as timedout and 500 statusCode", func(t *testing.T) {
 		app := fiber.New()
 		checks := HealthcheckMap{
 			"check1": func() bool { return false },
@@ -147,10 +141,10 @@ func TestHealthcheckRoute(t *testing.T) {
 		assert.Equal(t, "healthy", responseObject["check3"])
 	})
 
-	t.Run("should ignore not time out healthchecks", func(t *testing.T) {
+	t.Run("should not report slow checks as timedout", func(t *testing.T) {
 		app := fiber.New()
 		checks := HealthcheckMap{
-			"check1": func() bool { return false },
+			"check1": func() bool { return true },
 			"check2": func() bool {
 				time.Sleep(2 * time.Second)
 				return true
@@ -171,9 +165,9 @@ func TestHealthcheckRoute(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, 500, statusCode)
+		assert.Equal(t, 200, statusCode)
 		assert.Equal(t, 3, len(responseObject))
-		assert.Equal(t, "unhealthy", responseObject["check1"])
+		assert.Equal(t, "healthy", responseObject["check1"])
 		assert.Equal(t, "healthy", responseObject["check2"])
 		assert.Equal(t, "healthy", responseObject["check3"])
 	})

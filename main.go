@@ -12,7 +12,7 @@ import (
 )
 
 // @title Gofiber Template Server
-// @version 1.0.0
+// @version 1.0.1
 // @description Template for spinning up a gofiber server
 // @contact.name gkampitakis
 // @contact.email gkabitakis@gmail.com

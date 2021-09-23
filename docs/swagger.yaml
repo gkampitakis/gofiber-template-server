@@ -25,6 +25,28 @@ paths:
       summary: Prints Hello World
       tags:
       - template
+  /health:
+    get:
+      consumes:
+      - text/plain
+      description: Route reporting health of service
+      responses:
+        "200":
+          description: This can be dynamic and add more fields in checks
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: The route can return 500 in case of failed check,timeouts or
+            panic
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Healthcheck route
+      tags:
+      - health
   /hello/:name:
     get:
       consumes:

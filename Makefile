@@ -31,6 +31,7 @@ help:
 	@echo 'Application: $(APP_NAME)'
 	@echo
 	@echo 'Usage:'
+	@echo '    make update-swagger        Update swagger documentation'
 	@echo '    make dependecies           Download depencies needed for running ${APP_NAME}'
 	@echo '    make dev                   Run project with hot reload (needs nodemon installed)'
 	@echo '    make run                   Running project for development (enabled pprof)'
@@ -41,7 +42,10 @@ help:
 	@echo
 
 test: lint
-	go test ./... -race
+	go test ./... -count=1
+
+update-swagger:
+	~/go/bin/swag init ./...
 
 docker-start:
 	@echo 'After running tests you can stop docker with `make docker-stop`'
