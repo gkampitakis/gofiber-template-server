@@ -6,12 +6,13 @@ import (
 	"github.com/gkampitakis/gofiber-template-server/pkg/middleware"
 	"github.com/gkampitakis/gofiber-template-server/pkg/routes"
 	"github.com/gkampitakis/gofiber-template-server/pkg/utils"
+	"github.com/joho/godotenv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // @title Gofiber Template Server
-// @version 1.0.0
+// @version 1.0.1
 // @description Template for spinning up a gofiber server
 // @contact.name gkampitakis
 // @contact.email gkabitakis@gmail.com
@@ -21,35 +22,53 @@ import (
 // @BasePath /
 func main() {
 	app_config := configs.NewAppConfig()
-	app := SetupServer(app_config.IsDevelopment)
+	hc_config := configs.NewHealthcheckConfig()
+	app := SetupServer(hc_config, app_config.IsDevelopment)
 
 	utils.StartServer(app, app_config)
 }
 
-func SetupServer(isDevelopment bool) *fiber.App {
-	app := fiber.New()
+func SetupServer(hc_config *configs.HealthcheckConfig, isDevelopment bool) *fiber.App {
+	app := fiber.New(fiber.Config{
+		ErrorHandler:          utils.ErrorHandler,
+		DisableStartupMessage: !isDevelopment,
+	})
 	middleware.FiberMiddleware(app, isDevelopment)
-	utils.RegisterHealthchecks(app)
 
 	/**
 	Register Routes
 	*/
 	routes.AppRoutes(app)
+
+	/**
+	Special Setup for development
+	*/
 	if isDevelopment {
 		routes.SwaggerRoute(app)
+
+		err := godotenv.Load()
+		if err != nil {
+			utils.Logger.Warn("[App Config] " + err.Error())
+		}
 	}
 
 	/**
 	--- Example healthcheck ---
-	checks := []func(c chan utils.HealthcheckResult){
-		func(c chan utils.HealthcheckResult) {
-			go func() {
-				time.Sleep(time.Second * 6)
-				c <- utils.HealthcheckResult{Label: "postgres", Result: true}
-			}()
-		},
-	}
+	checks := utils.HealthcheckMap{
+			"myCheck": func() bool {
+				time.Sleep(4 * time.Second)
+				return true
+			},
+			"myCheck2": func() bool {
+				time.Sleep(3 * time.Second)
+				return true
+			},
+		}
+
+		and pass it to
+		RegisterHealthchecks(app, hc_config, checks)
 	*/
 
+	utils.RegisterHealthchecks(app, hc_config)
 	return app
 }

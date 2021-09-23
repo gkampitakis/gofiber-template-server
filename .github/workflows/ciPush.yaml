@@ -45,8 +45,9 @@ jobs:
         with:
           node-version: "14.17"
       - name: Install dependencies
-        run: npm i
+        run: yarn install --frozen-lockfile
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: HUSKY=0 npx semantic-release
