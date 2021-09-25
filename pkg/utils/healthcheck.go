@@ -40,16 +40,16 @@ func RegisterHealthchecks(app *fiber.App, hc_config *configs.HealthcheckConfig, 
 func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMap) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		checksLength := len(checks)
-		response, status := initializeResponse(checks, config)
 
 		// If we don't pass checks we prematurely respond as healthy, nothing to "check"
 		if checksLength == 0 {
-			response["status"] = "healthy"
-			return c.Status(status).JSON(response)
+			return c.Status(http.StatusOK).JSON(map[string]string{"status": "healthy"})
 		}
 
-		closeChannel := make(chan bool)
+		results := initializeResults(checks, config)
+		closeChannel := make(chan struct{})
 		wg := sync.WaitGroup{}
+		mutex := sync.Mutex{}
 
 		wg.Add(checksLength)
 
@@ -57,21 +57,17 @@ func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMa
 			go func(label string, control func() bool) {
 				/**
 				To future self, deferred function calles are push onto a stack. When function
-				returns, its deferred called are executed in LIFO order. ⬇️ in this case
-				we are adding first the done call and then the handlePanic but in case of panic
-				we first call done and then handle panic and set status as 500 creating race conditions
-				of setting status and responding to request.
+				returns, its deferred called are executed in LIFO order.
 				*/
 				defer wg.Done()
-				defer handlePanic(response, label, &status)
+				defer handlePanic(results, label)
 				res := control()
 				if res {
-					response[label] = "healthy"
+					results.Store(label, "healthy")
 					return
 				}
 
-				status = http.StatusInternalServerError
-				response[label] = "unhealthy"
+				results.Store(label, "unhealthy")
 			}(label, control)
 		}
 
@@ -80,32 +76,47 @@ func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMa
 			wg.Wait()
 		}()
 
-		timeout(config, &status, closeChannel)
+		timeout(config, closeChannel, &mutex)
 
-		return c.Status(status).JSON(response)
+		responseObject, status := getResponse(results)
+
+		return c.Status(status).JSON(responseObject)
 	}
 }
 
-func initializeResponse(checks HealthcheckMap, config *configs.HealthcheckConfig) (m map[string]string, status int) {
-	m = make(map[string]string, len(checks))
-	status = http.StatusOK
+func initializeResults(checks HealthcheckMap, config *configs.HealthcheckConfig) *sync.Map {
+	var m sync.Map
 
 	if !config.TimeoutEnabled {
-		return m, status
+		return &m
 	}
 
 	for label := range checks {
-		m[label] = fmt.Sprintf("Timeout after %d seconds", config.TimeoutPeriod)
+		m.Store(label, fmt.Sprintf("Timeout after %d seconds", config.TimeoutPeriod))
 	}
 
-	return m, status
+	return &m
 }
 
-func timeout(config *configs.HealthcheckConfig, status *int, c <-chan bool) {
+func getResponse(object *sync.Map) (map[string]string, int) {
+	responseObject := make(map[string]string)
+	status := http.StatusOK
+
+	object.Range(func(key, value interface{}) bool {
+		responseObject[key.(string)] = value.(string)
+		if value.(string) != "healthy" {
+			status = http.StatusInternalServerError
+		}
+		return true
+	})
+
+	return responseObject, status
+}
+
+func timeout(config *configs.HealthcheckConfig, c <-chan struct{}, l *sync.Mutex) {
 	if config.TimeoutEnabled {
 		select {
 		case <-time.After(time.Second * config.TimeoutPeriod):
-			*status = http.StatusInternalServerError
 		case <-c:
 		}
 
@@ -114,9 +125,8 @@ func timeout(config *configs.HealthcheckConfig, status *int, c <-chan bool) {
 	<-c
 }
 
-func handlePanic(response map[string]string, label string, status *int) {
+func handlePanic(response *sync.Map, label string) {
 	if e := recover(); e != nil {
-		response[label] = fmt.Errorf("Paniced with error: %v", e).Error()
-		*status = http.StatusInternalServerError
+		response.Store(label, fmt.Errorf("Paniced with error: %v", e).Error())
 	}
 }
