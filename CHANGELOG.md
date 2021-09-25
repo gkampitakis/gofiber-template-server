@@ -1,3 +1,11 @@
+## [1.0.1](https://github.com/gkampitakis/gofiber-template-server/compare/v1.0.0...v1.0.1) (2021-09-25)
+
+
+### Bug Fixes
+
+* enchance server functionality  ([#2](https://github.com/gkampitakis/gofiber-template-server/issues/2)) ([7086c34](https://github.com/gkampitakis/gofiber-template-server/commit/7086c34e1fcd651a66c9aa8371e65ee7d0d6a5ba))
+* issue with race conditions in tests ([be2b591](https://github.com/gkampitakis/gofiber-template-server/commit/be2b5914be148e7392b423849f2f3e9307389df4))
+
 # 1.0.0 (2021-09-16)
 
 
