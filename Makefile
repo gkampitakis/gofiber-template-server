@@ -34,11 +34,10 @@ help:
 	@echo '    make update-swagger        Update swagger documentation'
 	@echo '    make dependecies           Download depencies needed for running ${APP_NAME}'
 	@echo '    make dev                   Run project with hot reload (needs nodemon installed)'
-	@echo '    make run                   Running project for development (enabled pprof)'
+	@echo '    make run                   Build and run project for development (enabled pprof)'
 	@echo '    make test                  Run unit tests (you can pass -v for logs or debugging)'
 	@echo '    make clean                 Delete ./build and .env'
 	@echo '    make build                 Build application and copy the .env file'
-	@echo '    make unit-test             Run unit tests'
 	@echo
 
 test: lint
@@ -46,10 +45,3 @@ test: lint
 
 update-swagger:
 	~/go/bin/swag init ./...
-
-docker-start:
-	@echo 'After running tests you can stop docker with `make docker-stop`'
-	docker-compose up -d
-
-docker-stop:
-	docker-compose down

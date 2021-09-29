@@ -49,7 +49,6 @@ func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMa
 		results := initializeResults(checks, config)
 		closeChannel := make(chan struct{})
 		wg := sync.WaitGroup{}
-		mutex := sync.Mutex{}
 
 		wg.Add(checksLength)
 
@@ -76,7 +75,7 @@ func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMa
 			wg.Wait()
 		}()
 
-		timeout(config, closeChannel, &mutex)
+		timeout(config, closeChannel)
 
 		responseObject, status := getResponse(results)
 
@@ -113,7 +112,7 @@ func getResponse(object *sync.Map) (map[string]string, int) {
 	return responseObject, status
 }
 
-func timeout(config *configs.HealthcheckConfig, c <-chan struct{}, l *sync.Mutex) {
+func timeout(config *configs.HealthcheckConfig, c <-chan struct{}) {
 	if config.TimeoutEnabled {
 		select {
 		case <-time.After(time.Second * config.TimeoutPeriod):
