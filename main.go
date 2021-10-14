@@ -6,7 +6,6 @@ import (
 	"github.com/gkampitakis/gofiber-template-server/pkg/middleware"
 	"github.com/gkampitakis/gofiber-template-server/pkg/routes"
 	"github.com/gkampitakis/gofiber-template-server/pkg/utils"
-	"github.com/joho/godotenv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -45,11 +44,6 @@ func SetupServer(hc_config *configs.HealthcheckConfig, isDevelopment bool) *fibe
 	*/
 	if isDevelopment {
 		routes.SwaggerRoute(app)
-
-		err := godotenv.Load()
-		if err != nil {
-			utils.Logger.Warn("[App Config] " + err.Error())
-		}
 	}
 
 	/**
@@ -66,7 +60,7 @@ func SetupServer(hc_config *configs.HealthcheckConfig, isDevelopment bool) *fibe
 		}
 
 		and pass it to
-		RegisterHealthchecks(app, hc_config, checks)
+		utils.RegisterHealthchecks(app, hc_config, checks)
 	*/
 
 	utils.RegisterHealthchecks(app, hc_config)
