@@ -4,6 +4,8 @@ import (
 	"log"
 	"strconv"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 type AppConfig struct {
@@ -16,6 +18,11 @@ type AppConfig struct {
 
 func NewAppConfig() *AppConfig {
 	isDevelopment := GetEnv("GO_ENV") != "production"
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Printf("[App Config] " + err.Error())
+	}
 
 	port := GetEnv("APP_PORT", "8080")
 	host := "0.0.0.0"
