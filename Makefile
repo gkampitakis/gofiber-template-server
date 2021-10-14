@@ -41,7 +41,7 @@ help:
 	@echo
 
 test: lint
-	go test ./... -count=1 -race
+	go test ./... -count=1
 
 update-swagger:
 	~/go/bin/swag init ./...

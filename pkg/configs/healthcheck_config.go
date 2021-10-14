@@ -9,6 +9,7 @@ import (
 type HealthcheckConfig struct {
 	TimeoutPeriod  time.Duration
 	TimeoutEnabled bool
+	Service        string
 }
 
 func NewHealthcheckConfig() *HealthcheckConfig {
@@ -17,6 +18,7 @@ func NewHealthcheckConfig() *HealthcheckConfig {
 		timeoutPeriod = 5
 		log.Printf("[HC_TIMEOUT_PERIOD] incorrect value, defaulting to %d", timeoutPeriod)
 	}
+
 	timeoutEnabled, err := strconv.ParseBool(GetEnv("HC_TIMEOUT_ENABLED", "true"))
 	if err != nil {
 		timeoutEnabled = true
@@ -26,5 +28,6 @@ func NewHealthcheckConfig() *HealthcheckConfig {
 	return &HealthcheckConfig{
 		TimeoutPeriod:  time.Duration(timeoutPeriod),
 		TimeoutEnabled: timeoutEnabled,
+		Service:        GetEnv("HC_APP_NAME", "gofiber-template"),
 	}
 }

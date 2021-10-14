@@ -31,4 +31,4 @@ jobs:
         with:
           go-version: ${{matrix.go}}
       - name: Run Tests
-        run: go test ./... -race
+        run: go test ./...

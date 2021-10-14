@@ -4,12 +4,33 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
+	"runtime"
 	"time"
 
 	"github.com/gkampitakis/gofiber-template-server/pkg/configs"
 	"github.com/gofiber/fiber/v2"
 )
+
+var upTime = time.Now()
+
+type HealthCheckResponse struct {
+	Service      string            `json:"service"`
+	Uptime       string            `json:"uptime"`
+	Memory       MemoryMetrics     `json:"memory"`
+	GoRoutines   int               `json:"go_routines"`
+	HealthChecks map[string]string `json:"health_checks,omitempty"`
+}
+
+type MemoryMetrics struct {
+	ResidentSetSize uint64 `json:"rss"`
+	TotalAlloc      uint64 `json:"total_alloc"`
+	HeapAlloc       uint64 `json:"heap_alloc"`
+}
+
+type C struct {
+	msg   string
+	label string
+}
 
 type HealthcheckMap map[string]func() bool
 
@@ -18,15 +39,11 @@ func RegisterHealthchecks(app *fiber.App, hc_config *configs.HealthcheckConfig, 
 		log.Println("[Warning] only the 1st element is used")
 	}
 
-	var _checks HealthcheckMap
-
-	if len(checks) == 0 {
-		_checks = make(HealthcheckMap)
+	if checks == nil {
+		app.Get("/health", registerHealthRoute(hc_config, nil))
 	} else {
-		_checks = checks[0]
+		app.Get("/health", registerHealthRoute(hc_config, checks[0]))
 	}
-
-	app.Get("/health", registerHealthRoute(hc_config, _checks))
 }
 
 // @Description Route reporting health of service
@@ -38,94 +55,107 @@ func RegisterHealthchecks(app *fiber.App, hc_config *configs.HealthcheckConfig, 
 // @Failure 500 {object} map[string]string "The route can return 500 in case of failed check,timeouts or panic"
 // @Router /health [get]
 func registerHealthRoute(config *configs.HealthcheckConfig, checks HealthcheckMap) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
+	return func(ctx *fiber.Ctx) error {
+		// If we don't pass checks we prematurely respond as healthy, nothing to "check"
+		if checks == nil {
+			return ctx.Status(http.StatusOK).JSON(prepareResponse(config.Service, nil))
+		}
+
+		status := http.StatusOK
+		response := prepareResponse(config.Service, map[string]string{})
+		c := make(chan C)
 		checksLength := len(checks)
 
-		// If we don't pass checks we prematurely respond as healthy, nothing to "check"
-		if checksLength == 0 {
-			return c.Status(http.StatusOK).JSON(map[string]string{"status": "healthy"})
-		}
-
-		results := initializeResults(checks, config)
-		closeChannel := make(chan struct{})
-		wg := sync.WaitGroup{}
-
-		wg.Add(checksLength)
-
 		for label, control := range checks {
-			go func(label string, control func() bool) {
-				/**
-				To future self, deferred function calles are push onto a stack. When function
-				returns, its deferred called are executed in LIFO order.
-				*/
-				defer wg.Done()
-				defer handlePanic(results, label)
-				res := control()
-				if res {
-					results.Store(label, "healthy")
-					return
-				}
-
-				results.Store(label, "unhealthy")
-			}(label, control)
+			go check(
+				label,
+				control,
+				&status,
+				c,
+				config.TimeoutEnabled,
+				config.TimeoutPeriod,
+			)
 		}
 
-		go func() {
-			defer close(closeChannel)
-			wg.Wait()
+		for i := 0; i < checksLength; i++ {
+			checkResponse := <-c
+			response.HealthChecks[checkResponse.label] = checkResponse.msg
+		}
+
+		return ctx.Status(status).JSON(response)
+	}
+}
+
+func prepareResponse(service string, healthChecks map[string]string) *HealthCheckResponse {
+	var mem runtime.MemStats
+	runtime.ReadMemStats(&mem)
+
+	return &HealthCheckResponse{
+		Uptime:  time.Since(upTime).String(),
+		Service: service,
+		Memory: MemoryMetrics{
+			ResidentSetSize: mem.HeapSys,
+			TotalAlloc:      mem.TotalAlloc,
+			HeapAlloc:       mem.HeapAlloc,
+		},
+		GoRoutines:   runtime.NumGoroutine(),
+		HealthChecks: healthChecks,
+	}
+}
+
+func check(
+	label string,
+	control func() bool,
+	status *int, c chan<- C,
+	timeoutEnabled bool,
+	timeoutPeriod time.Duration,
+) {
+	/**
+	To future self, this channel needs to be buffered.
+	The reason is when the timeout is enabled and  the `res := control()` doesn't respond on time,
+	later when it tries to push to `localC` there is no one to read the message so the goroutine
+	is left there "stuck" and ending up leaking goroutines.
+	*/
+	localC := make(chan C, 1)
+
+	go func() {
+		/**
+		To future self, deferred function calles are push onto a stack. When function
+		returns, its deferred called are executed in LIFO order.
+		*/
+		defer func() {
+			if e := recover(); e != nil {
+				localC <- C{msg: fmt.Errorf("Paniced with error: %v", e).Error(), label: label}
+				if *status == http.StatusOK {
+					*status = http.StatusInternalServerError
+				}
+			}
 		}()
 
-		timeout(config, closeChannel)
-
-		responseObject, status := getResponse(results)
-
-		return c.Status(status).JSON(responseObject)
-	}
-}
-
-func initializeResults(checks HealthcheckMap, config *configs.HealthcheckConfig) *sync.Map {
-	var m sync.Map
-
-	if !config.TimeoutEnabled {
-		return &m
-	}
-
-	for label := range checks {
-		m.Store(label, fmt.Sprintf("Timeout after %d seconds", config.TimeoutPeriod))
-	}
-
-	return &m
-}
-
-func getResponse(object *sync.Map) (map[string]string, int) {
-	responseObject := make(map[string]string)
-	status := http.StatusOK
-
-	object.Range(func(key, value interface{}) bool {
-		responseObject[key.(string)] = value.(string)
-		if value.(string) != "healthy" {
-			status = http.StatusInternalServerError
+		res := control()
+		if res {
+			localC <- C{msg: "healthy", label: label}
+			return
 		}
-		return true
-	})
 
-	return responseObject, status
-}
+		if *status == http.StatusOK {
+			*status = http.StatusInternalServerError
+		}
 
-func timeout(config *configs.HealthcheckConfig, c <-chan struct{}) {
-	if config.TimeoutEnabled {
+		localC <- C{msg: "unhealthy", label: label}
+	}()
+
+	if timeoutEnabled {
 		select {
-		case <-time.After(time.Second * config.TimeoutPeriod):
-		case <-c:
+		case tmp := <-localC:
+			c <- tmp
+		case <-time.After(time.Second * timeoutPeriod):
+			c <- C{msg: fmt.Sprintf("Timeout after %d seconds", timeoutPeriod), label: label}
 		}
 
 		return
 	}
-	<-c
-}
 
-func handlePanic(response *sync.Map, label string) {
-	if e := recover(); e != nil {
-		response.Store(label, fmt.Errorf("Paniced with error: %v", e).Error())
-	}
+	res := <-localC
+	c <- res
 }
