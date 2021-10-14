@@ -1,3 +1,11 @@
+## [1.0.2](https://github.com/gkampitakis/gofiber-template-server/compare/v1.0.1...v1.0.2) (2021-10-14)
+
+
+### Bug Fixes
+
+* move dotenv load inside config ([42bcbc5](https://github.com/gkampitakis/gofiber-template-server/commit/42bcbc5f78e4e81876b5073f357a19ae6d5bab34))
+* refactor healthcheck route to include metrics ([235390e](https://github.com/gkampitakis/gofiber-template-server/commit/235390e84ed24d0ee42efdc271c025cdb2836557))
+
 ## [1.0.1](https://github.com/gkampitakis/gofiber-template-server/compare/v1.0.0...v1.0.1) (2021-09-25)
 
 
