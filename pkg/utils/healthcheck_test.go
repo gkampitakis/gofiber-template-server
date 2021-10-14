@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"testing"
 	"time"
@@ -42,18 +43,19 @@ func TestHealthcheckRoute(t *testing.T) {
 	t.Run("should return just a status", func(t *testing.T) {
 		app := fiber.New()
 		RegisterHealthchecks(app, configs.NewHealthcheckConfig())
-		responseObject := make(map[string]string)
+		response := HealthCheckResponse{}
 
 		body, statusCode := healthRequest(t, app, 100)
-		err := json.Unmarshal(body, &responseObject)
+		err := json.Unmarshal(body, &response)
 
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		assert.Equal(t, 200, statusCode)
-		assert.Equal(t, 1, len(responseObject))
-		assert.Equal(t, "healthy", responseObject["status"])
+
+		assert.Equal(t, "gofiber-template", response.Service)
+		assert.Equal(t, 0, len(response.HealthChecks))
 	})
 
 	t.Run("should list all checks healthy", func(t *testing.T) {
@@ -65,18 +67,17 @@ func TestHealthcheckRoute(t *testing.T) {
 		}
 
 		RegisterHealthchecks(app, configs.NewHealthcheckConfig(), checks)
-		responseObject := make(map[string]string)
+		response := HealthCheckResponse{}
 
 		body, statusCode := healthRequest(t, app, 100)
-		err := json.Unmarshal(body, &responseObject)
-
+		err := json.Unmarshal(body, &response)
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		assert.Equal(t, 200, statusCode)
-		assert.Equal(t, 3, len(responseObject))
-		for label, value := range responseObject {
+		assert.Equal(t, 3, len(response.HealthChecks))
+		for label, value := range response.HealthChecks {
 			assert.Equal(t, "healthy", value)
 			_, exists := checks[label]
 			assert.True(t, exists)
@@ -94,20 +95,22 @@ func TestHealthcheckRoute(t *testing.T) {
 		}
 
 		RegisterHealthchecks(app, configs.NewHealthcheckConfig(), checks)
-		responseObject := make(map[string]string)
+		response := HealthCheckResponse{}
 
 		body, statusCode := healthRequest(t, app, 100)
-		err := json.Unmarshal(body, &responseObject)
+		err := json.Unmarshal(body, &response)
 
 		if err != nil {
 			t.Fatal(err)
 		}
 
+		checksResults := response.HealthChecks
+
 		assert.Equal(t, 500, statusCode)
-		assert.Equal(t, 3, len(responseObject))
-		assert.Equal(t, "healthy", responseObject["check1"])
-		assert.Equal(t, "Paniced with error: boo 👻", responseObject["check2"])
-		assert.Equal(t, "healthy", responseObject["check3"])
+		assert.Equal(t, 3, len(checksResults))
+		assert.Equal(t, "healthy", checksResults["check1"])
+		assert.Equal(t, "Paniced with error: boo 👻", checksResults["check2"])
+		assert.Equal(t, "healthy", checksResults["check3"])
 	})
 
 	t.Run("should report slow checks as timedout and 500 statusCode", func(t *testing.T) {
@@ -125,20 +128,23 @@ func TestHealthcheckRoute(t *testing.T) {
 			TimeoutEnabled: true,
 			TimeoutPeriod:  1,
 		}, checks)
-		responseObject := make(map[string]string)
+		response := HealthCheckResponse{}
 
 		body, statusCode := healthRequest(t, app, 3000)
-		err := json.Unmarshal(body, &responseObject)
-
+		err := json.Unmarshal(body, &response)
 		if err != nil {
 			t.Fatal(err)
 		}
 
+		checksResults := response.HealthChecks
+
+		log.Println(response.HealthChecks)
+
 		assert.Equal(t, 500, statusCode)
-		assert.Equal(t, 3, len(responseObject))
-		assert.Equal(t, "unhealthy", responseObject["check1"])
-		assert.Equal(t, "Timeout after 1 seconds", responseObject["check2"])
-		assert.Equal(t, "healthy", responseObject["check3"])
+		assert.Equal(t, 3, len(checksResults))
+		assert.Equal(t, "unhealthy", checksResults["check1"])
+		assert.Equal(t, "Timeout after 1 seconds", checksResults["check2"])
+		assert.Equal(t, "healthy", checksResults["check3"])
 	})
 
 	t.Run("should not report slow checks as timedout", func(t *testing.T) {
@@ -156,19 +162,20 @@ func TestHealthcheckRoute(t *testing.T) {
 			TimeoutEnabled: false,
 			TimeoutPeriod:  1,
 		}, checks)
-		responseObject := make(map[string]string)
+		response := HealthCheckResponse{}
 
 		body, statusCode := healthRequest(t, app, 3000)
-		err := json.Unmarshal(body, &responseObject)
-
+		err := json.Unmarshal(body, &response)
 		if err != nil {
 			t.Fatal(err)
 		}
 
+		checksResults := response.HealthChecks
+
 		assert.Equal(t, 200, statusCode)
-		assert.Equal(t, 3, len(responseObject))
-		assert.Equal(t, "healthy", responseObject["check1"])
-		assert.Equal(t, "healthy", responseObject["check2"])
-		assert.Equal(t, "healthy", responseObject["check3"])
+		assert.Equal(t, 3, len(checksResults))
+		assert.Equal(t, "healthy", checksResults["check1"])
+		assert.Equal(t, "healthy", checksResults["check2"])
+		assert.Equal(t, "healthy", checksResults["check3"])
 	})
 }

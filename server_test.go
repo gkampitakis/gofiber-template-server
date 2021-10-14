@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/gkampitakis/gofiber-template-server/pkg/configs"
+	"github.com/gkampitakis/gofiber-template-server/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -147,7 +148,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("[/health] should respond healthy", func(t *testing.T) {
-			bodyMap := make(map[string]string)
+			bodyResponse := utils.HealthCheckResponse{}
 			app := SetupServer(configs.NewHealthcheckConfig(), false)
 
 			req, err := http.NewRequest(
@@ -165,13 +166,14 @@ func TestServer(t *testing.T) {
 			}
 
 			body, _ := ioutil.ReadAll(res.Body)
-			err = json.Unmarshal(body, &bodyMap)
+			err = json.Unmarshal(body, &bodyResponse)
 			if err != nil {
 				t.Error(err)
 			}
 
 			assert.Equal(t, 200, res.StatusCode)
-			assert.Equal(t, "healthy", bodyMap["status"])
+			assert.Equal(t, "gofiber-template", bodyResponse.Service)
+			assert.Equal(t, 0, len(bodyResponse.HealthChecks))
 		})
 	})
 }
