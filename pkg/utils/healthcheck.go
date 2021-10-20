@@ -117,7 +117,7 @@ func check(
 	is left there "stuck" and ending up leaking goroutines.
 	*/
 	localC := make(chan C, 1)
-
+	// FIXME: go routine here is problematic
 	go func() {
 		/**
 		To future self, deferred function calles are push onto a stack. When function

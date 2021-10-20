@@ -12,3 +12,5 @@ func ErrorHandler(c *fiber.Ctx, e error) error {
 		"message": "Internal Server Error",
 	})
 }
+
+// TODO: error handling needs refactor
