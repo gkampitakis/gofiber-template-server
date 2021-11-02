@@ -11,8 +11,8 @@ require (
 )
 
 require (
-	github.com/arsmn/fiber-swagger/v2 v2.17.0
-	github.com/swaggo/swag v1.7.1
+	github.com/arsmn/fiber-swagger/v2 v2.20.0
+	github.com/swaggo/swag v1.7.4
 )
 
 require (
