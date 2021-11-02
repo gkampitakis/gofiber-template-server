@@ -9,14 +9,14 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@semantic-release/changelog": "5.0.1",
-    "@semantic-release/git": "9.0.1",
-    "semantic-release": "17.4.7"
+    "@semantic-release/changelog": "6.0.1",
+    "@semantic-release/git": "10.0.1",
+    "semantic-release": "18.0.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "13.1.0",
-    "@commitlint/config-conventional": "13.1.0",
-    "husky": "7.0.2"
+    "@commitlint/cli": "14.1.0",
+    "@commitlint/config-conventional": "14.1.0",
+    "husky": "7.0.4"
   },
   "commitlint": {
     "extends": [
