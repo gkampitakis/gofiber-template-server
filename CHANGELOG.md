@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/gkampitakis/gofiber-template-server/compare/v1.0.2...v1.0.3) (2021-11-06)
+
+
+### Bug Fixes
+
+* split healthcheck to a seperate fiber module ([9fc8541](https://github.com/gkampitakis/gofiber-template-server/commit/9fc85416997a086dcf55653b3cecc72a43b0c2cc))
+
 ## [1.0.2](https://github.com/gkampitakis/gofiber-template-server/compare/v1.0.1...v1.0.2) (2021-10-14)
 
 
