@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"testing"
 
+	hc "github.com/gkampitakis/fiber-modules/healthcheck"
 	"github.com/gkampitakis/gofiber-template-server/pkg/configs"
-	"github.com/gkampitakis/gofiber-template-server/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -148,7 +148,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("[/health] should respond healthy", func(t *testing.T) {
-			bodyResponse := utils.HealthCheckResponse{}
+			bodyResponse := hc.HealthCheckResponse{}
 			app := SetupServer(configs.NewHealthcheckConfig(), false)
 
 			req, err := http.NewRequest(

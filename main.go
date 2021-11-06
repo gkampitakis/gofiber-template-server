@@ -7,6 +7,8 @@ import (
 	"github.com/gkampitakis/gofiber-template-server/pkg/routes"
 	"github.com/gkampitakis/gofiber-template-server/pkg/utils"
 
+	hc "github.com/gkampitakis/fiber-modules/healthcheck"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,14 +22,14 @@ import (
 // @host localhost:8080
 // @BasePath /
 func main() {
-	app_config := configs.NewAppConfig()
-	hc_config := configs.NewHealthcheckConfig()
-	app := SetupServer(hc_config, app_config.IsDevelopment)
+	app_cfg := configs.NewAppConfig()
+	hc_cfg := configs.NewHealthcheckConfig()
+	app := SetupServer(hc_cfg, app_cfg.IsDevelopment)
 
-	utils.StartServer(app, app_config)
+	utils.StartServer(app, app_cfg)
 }
 
-func SetupServer(hc_config *configs.HealthcheckConfig, isDevelopment bool) *fiber.App {
+func SetupServer(cfg *configs.HealthcheckConfig, isDevelopment bool) *fiber.App {
 	app := fiber.New(fiber.Config{
 		ErrorHandler:          utils.ErrorHandler,
 		DisableStartupMessage: !isDevelopment,
@@ -46,23 +48,11 @@ func SetupServer(hc_config *configs.HealthcheckConfig, isDevelopment bool) *fibe
 		routes.SwaggerRoute(app)
 	}
 
-	/**
-	--- Example healthcheck ---
-	checks := utils.HealthcheckMap{
-			"myCheck": func() bool {
-				time.Sleep(4 * time.Second)
-				return true
-			},
-			"myCheck2": func() bool {
-				time.Sleep(3 * time.Second)
-				return true
-			},
-		}
+	app.Get("/health", hc.New(
+		hc.SetServiceName(cfg.Service),
+		hc.ShowErrors(),
+		hc.EnableTimeout(),
+	))
 
-		and pass it to
-		utils.RegisterHealthchecks(app, hc_config, checks)
-	*/
-
-	utils.RegisterHealthchecks(app, hc_config)
 	return app
 }
