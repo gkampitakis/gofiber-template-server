@@ -7,6 +7,7 @@ import (
 	"github.com/gkampitakis/gofiber-template-server/pkg/routes"
 	"github.com/gkampitakis/gofiber-template-server/pkg/utils"
 
+	"github.com/gkampitakis/fiber-modules/gracefulshutdown"
 	hc "github.com/gkampitakis/fiber-modules/healthcheck"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,19 +23,18 @@ import (
 // @host localhost:8080
 // @BasePath /
 func main() {
-	app_cfg := configs.NewAppConfig()
-	hc_cfg := configs.NewHealthcheckConfig()
-	app := SetupServer(hc_cfg, app_cfg.IsDevelopment)
+	cfg := configs.New()
+	app := SetupServer(cfg)
 
-	utils.StartServer(app, app_cfg)
+	gracefulshutdown.Listen(app, cfg.Addr, cfg.GracefulshutdownConfig())
 }
 
-func SetupServer(cfg *configs.HealthcheckConfig, isDevelopment bool) *fiber.App {
+func SetupServer(cfg *configs.AppConfig) *fiber.App {
 	app := fiber.New(fiber.Config{
 		ErrorHandler:          utils.ErrorHandler,
-		DisableStartupMessage: !isDevelopment,
+		DisableStartupMessage: !cfg.IsDevelopment,
 	})
-	middleware.FiberMiddleware(app, isDevelopment)
+	middleware.FiberMiddleware(app, cfg.IsDevelopment)
 
 	/**
 	Register Routes
@@ -44,7 +44,7 @@ func SetupServer(cfg *configs.HealthcheckConfig, isDevelopment bool) *fiber.App 
 	/**
 	Special Setup for development
 	*/
-	if isDevelopment {
+	if cfg.IsDevelopment {
 		routes.SwaggerRoute(app)
 	}
 
