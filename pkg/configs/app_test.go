@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gkampitakis/fiber-modules/gracefulshutdown"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,24 +22,27 @@ func TestAppConfig(t *testing.T) {
 		defer clearEnv()
 		clearEnv()
 
-		config := NewAppConfig()
+		config := New()
 		assert.Equal(t, true, config.IsDevelopment)
-		assert.Equal(t, "localhost", config.Host)
-		assert.Equal(t, "8080", config.Port)
-		assert.Equal(t, time.Duration(10), config.ShutdownPeriod)
+		assert.Equal(t, "localhost:8080", config.Addr)
 	})
 
-	t.Run("should return setted values and host as 0.0.0.0", func(t *testing.T) {
+	t.Run("should return explicit values and host as 0.0.0.0", func(t *testing.T) {
 		defer clearEnv()
 		clearEnv()
 		os.Setenv("GO_ENV", "production")
 		os.Setenv("APP_PORT", "1000")
-		os.Setenv("APP_SHUTDOWN_PERIOD", "1000")
+		os.Setenv("GRACE_PERIOD", "35")
 
-		config := NewAppConfig()
+		fns := []func() error{}
+
+		config := New()
 		assert.Equal(t, false, config.IsDevelopment)
-		assert.Equal(t, "0.0.0.0", config.Host)
-		assert.Equal(t, "1000", config.Port)
-		assert.Equal(t, time.Duration(1000), config.ShutdownPeriod)
+		assert.Equal(t, "0.0.0.0:1000", config.Addr)
+		assert.Equal(t, gracefulshutdown.Config{
+			Period:      time.Duration(35),
+			Enabled:     true,
+			ShutdownFns: fns,
+		}, config.GracefulshutdownConfig(fns...))
 	})
 }

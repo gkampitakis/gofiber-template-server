@@ -12,7 +12,7 @@ require (
 
 require (
 	github.com/arsmn/fiber-swagger/v2 v2.20.0
-	github.com/gkampitakis/fiber-modules v1.0.0
+	github.com/gkampitakis/fiber-modules v1.0.2
 	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/swag v1.7.4
 )

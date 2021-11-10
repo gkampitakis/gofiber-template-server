@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"testing"
 
 	hc "github.com/gkampitakis/fiber-modules/healthcheck"
@@ -15,7 +16,7 @@ func TestServer(t *testing.T) {
 	t.Run("setup server", func(t *testing.T) {
 		t.Run("Development", func(t *testing.T) {
 			t.Run("profilling route should be enabled", func(t *testing.T) {
-				app := SetupServer(configs.NewHealthcheckConfig(), true)
+				app := SetupServer(configs.New())
 
 				req, err := http.NewRequest(
 					"GET",
@@ -37,7 +38,7 @@ func TestServer(t *testing.T) {
 			})
 
 			t.Run("swagger route should be enabled", func(t *testing.T) {
-				app := SetupServer(configs.NewHealthcheckConfig(), true)
+				app := SetupServer(configs.New())
 
 				req, err := http.NewRequest(
 					"GET",
@@ -60,8 +61,10 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Production", func(t *testing.T) {
+			os.Setenv("GO_ENV", "production")
+
 			t.Run("profilling route should be disabled", func(t *testing.T) {
-				app := SetupServer(configs.NewHealthcheckConfig(), false)
+				app := SetupServer(configs.New())
 
 				req, err := http.NewRequest(
 					"GET",
@@ -81,7 +84,7 @@ func TestServer(t *testing.T) {
 			})
 
 			t.Run("swagger route should be disabled", func(t *testing.T) {
-				app := SetupServer(configs.NewHealthcheckConfig(), false)
+				app := SetupServer(configs.New())
 
 				req, err := http.NewRequest(
 					"GET",
@@ -104,7 +107,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("routes", func(t *testing.T) {
 		t.Run("[/] should greet", func(t *testing.T) {
-			app := SetupServer(configs.NewHealthcheckConfig(), false)
+			app := SetupServer(configs.New())
 
 			req, err := http.NewRequest(
 				"GET",
@@ -126,7 +129,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("[/hello/:name] should greet with name", func(t *testing.T) {
-			app := SetupServer(configs.NewHealthcheckConfig(), false)
+			app := SetupServer(configs.New())
 
 			req, err := http.NewRequest(
 				"GET",
@@ -149,7 +152,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("[/health] should respond healthy", func(t *testing.T) {
 			bodyResponse := hc.HealthCheckResponse{}
-			app := SetupServer(configs.NewHealthcheckConfig(), false)
+			app := SetupServer(configs.New())
 
 			req, err := http.NewRequest(
 				"GET",

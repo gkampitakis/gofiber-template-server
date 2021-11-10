@@ -21,7 +21,7 @@ __cp_env:
 	(cp -n .env.example .env && echo "created .env") || echo "file already exists"
 
 lint: 
-	golangci-lint run
+	golangci-lint run -c ./golangci.yml
 
 build: clean
 	cp -n .env.example .env
