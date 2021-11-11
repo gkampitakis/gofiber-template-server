@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/gkampitakis/gofiber-template-server/compare/v1.0.3...v1.1.0) (2021-11-11)
+
+
+### Features
+
+* split gracefulshutdown to a seperate fiber module ([2e44500](https://github.com/gkampitakis/gofiber-template-server/commit/2e445006823ba49dd3028a065d14de0f4c6296ef))
+
 ## [1.0.3](https://github.com/gkampitakis/gofiber-template-server/compare/v1.0.2...v1.0.3) (2021-11-06)
 
 
