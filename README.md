@@ -63,3 +63,23 @@ In development profiling is enabled. You can visit `localhost:8080/debug/pprof/`
 ## Licence
 
 MIT License
+
+Structure Now
+
+main.go
+- app/controllers
+- docs/**
+- pkg
+  - configs
+  - middleware
+  - routes
+  - utils
+
+Future:
+- app
+  - controllers/**
+  - middleware
+  - models
+- config/**
+- database
+- routes
