@@ -12,7 +12,7 @@ require (
 
 require (
 	github.com/arsmn/fiber-swagger/v2 v2.20.0
-	github.com/gkampitakis/fiber-modules v1.0.2
+	github.com/gkampitakis/fiber-modules v1.0.0-beta
 	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/swag v1.7.4
 )
@@ -31,6 +31,8 @@ require (
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/qri-io/jsonpointer v0.1.1 // indirect
+	github.com/qri-io/jsonschema v0.2.1 // indirect
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.31.0 // indirect
@@ -45,3 +47,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
+
+replace github.com/gkampitakis/fiber-modules v1.0.0-beta => ../gofiber-custom-healthcheck

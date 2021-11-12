@@ -1,0 +1,160 @@
+{
+  "body": {
+    "type": "object",
+    "properties": {
+      "_id": {
+        "type": "string"
+      },
+      "index": {
+        "type": "integer"
+      },
+      "user": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "age": {
+                "type": "integer"
+              },
+              "addresses": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["type", "path", "name"]
+                }
+              }
+            },
+            "required": ["age", "addresses", "files"]
+          }
+        },
+        "required": ["name", "email", "meta"]
+      },
+      "guid": {
+        "type": "string"
+      },
+      "isActive": {
+        "type": "boolean"
+      },
+      "balance": {
+        "type": "string"
+      },
+      "picture": {
+        "type": "string"
+      },
+      "age": {
+        "type": "integer"
+      },
+      "eyeColor": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "gender": {
+        "type": "string"
+      },
+      "company": {
+        "type": "string"
+      },
+      "email": {
+        "type": "string"
+      },
+      "phone": {
+        "type": "string"
+      },
+      "address": {
+        "type": "string"
+      },
+      "about": {
+        "type": "string"
+      },
+      "registered": {
+        "type": "string"
+      },
+      "latitude": {
+        "type": "number"
+      },
+      "longitude": {
+        "type": "number"
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "friends": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": ["id", "name"]
+        }
+      },
+      "greeting": {
+        "type": "string"
+      },
+      "favoriteFruit": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "_id",
+      "index",
+      "user",
+      "guid",
+      "isActive",
+      "balance",
+      "picture",
+      "age",
+      "eyeColor",
+      "name",
+      "gender",
+      "company",
+      "email",
+      "phone",
+      "address",
+      "about",
+      "registered",
+      "latitude",
+      "longitude",
+      "tags",
+      "friends",
+      "greeting",
+      "favoriteFruit"
+    ]
+  }
+}

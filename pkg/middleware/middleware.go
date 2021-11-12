@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +14,7 @@ import (
 func FiberMiddleware(a *fiber.App, isDevelopment bool) {
 	if isDevelopment {
 		a.Use(pprof.New())
+		a.Get("/metrics", monitor.New())
 	}
 
 	a.Use(

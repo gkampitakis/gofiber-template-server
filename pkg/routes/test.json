@@ -1,11 +1,16 @@
 {
-  "type": "object",
-  "properties": {
-    "data": {
-      "type": "array",
-      "items": {
-        "type": "integer"
+  "body": {
+    "type": "object",
+    "properties": {
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        }
       }
     }
-  }
+  },
+  "querystring": {},
+  "headers": {},
+  "params": {}
 }
