@@ -1,16 +1,17 @@
 {
-  "body": {
-    "type": "object",
-    "properties": {
-      "data": {
-        "type": "array",
-        "items": {
-          "type": "integer"
+  "type": "object",
+  "properties": {
+    "user": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "email": true
         }
       }
     }
-  },
-  "querystring": {},
-  "headers": {},
-  "params": {}
+  }
 }
