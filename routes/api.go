@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func AppRoutes(app *fiber.App) {
+func APIRoutes(app *fiber.App) {
 	route := app.Group("")
 
 	route.Get("/", controllers.Default)
