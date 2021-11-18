@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/gkampitakis/gofiber-template-server/app/middleware"
+	"github.com/gkampitakis/gofiber-template-server/app/utils"
+	"github.com/gkampitakis/gofiber-template-server/config"
 	_ "github.com/gkampitakis/gofiber-template-server/docs"
-	"github.com/gkampitakis/gofiber-template-server/pkg/configs"
-	"github.com/gkampitakis/gofiber-template-server/pkg/middleware"
-	"github.com/gkampitakis/gofiber-template-server/pkg/routes"
-	"github.com/gkampitakis/gofiber-template-server/pkg/utils"
+	"github.com/gkampitakis/gofiber-template-server/routes"
 
 	"github.com/gkampitakis/fiber-modules/gracefulshutdown"
 	hc "github.com/gkampitakis/fiber-modules/healthcheck"
@@ -15,7 +15,7 @@ import (
 
 // @title Gofiber Template Server
 // @version 1.0.1
-// @description Template for spinning up a gofiber server
+// @description Template for spinning up a fiber server
 // @contact.name gkampitakis
 // @contact.email gkabitakis@gmail.com
 // @license.name MIT
@@ -23,13 +23,13 @@ import (
 // @host localhost:8080
 // @BasePath /
 func main() {
-	cfg := configs.New()
+	cfg := config.New()
 	app := SetupServer(cfg)
 
 	gracefulshutdown.Listen(app, cfg.Addr, cfg.GracefulshutdownConfig())
 }
 
-func SetupServer(cfg *configs.AppConfig) *fiber.App {
+func SetupServer(cfg *config.AppConfig) *fiber.App {
 	app := fiber.New(fiber.Config{
 		ErrorHandler:          utils.ErrorHandler,
 		DisableStartupMessage: !cfg.IsDevelopment,
@@ -39,7 +39,7 @@ func SetupServer(cfg *configs.AppConfig) *fiber.App {
 	/**
 	Register Routes
 	*/
-	routes.AppRoutes(app)
+	routes.APIRoutes(app)
 
 	/**
 	Special Setup for development
