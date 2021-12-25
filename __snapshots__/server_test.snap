@@ -1,0 +1,20 @@
+
+[TestServer/setup_server/Development/profilling_route_should_be_enabled - 1]
+int(200)
+[]string{"text/html; charset=utf-8"}
+---
+
+[TestServer/setup_server/Development/swagger_route_should_be_enabled - 1]
+int(200)
+[]string{"text/html"}
+---
+
+[TestServer/routes/[/]_should_greet - 1]
+int(200)
+Hello World from template
+---
+
+[TestServer/routes/[/hello/:name]_should_greet_with_name - 1]
+int(200)
+Hello test 👋
+---

@@ -1,0 +1,34 @@
+
+[TestAppConfig/should_return_default_values - 1]
+&config.AppConfig{
+    _:                      struct {}{},
+    Addr:                   "localhost:8080",
+    Service:                "gofiber-template",
+    IsDevelopment:          true,
+    GracefulshutdownConfig: func(...func() error) gracefulshutdown.Config {...},
+}
+gracefulshutdown.Config{
+    Period:             15,
+    Enabled:            false,
+    ShutdownFns:        nil,
+    ListenErrorHandler: func(error) {...},
+    Signals:            nil,
+}
+---
+
+[TestAppConfig/should_return_explicit_values_and_host_as_0.0.0.0 - 1]
+&config.AppConfig{
+    _:                      struct {}{},
+    Addr:                   "0.0.0.0:1000",
+    Service:                "gofiber-template",
+    IsDevelopment:          false,
+    GracefulshutdownConfig: func(...func() error) gracefulshutdown.Config {...},
+}
+gracefulshutdown.Config{
+    Period:             35,
+    Enabled:            true,
+    ShutdownFns:        {},
+    ListenErrorHandler: func(error) {...},
+    Signals:            nil,
+}
+---

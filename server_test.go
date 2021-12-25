@@ -8,10 +8,19 @@ import (
 	"testing"
 
 	hc "github.com/gkampitakis/fiber-modules/healthcheck"
+	"github.com/gkampitakis/go-snaps/snaps"
 	"github.com/gkampitakis/gofiber-template-server/config"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestMain(t *testing.M) {
+	v := t.Run()
+
+	snaps.Clean()
+
+	os.Exit(v)
+}
 
 func TestServer(t *testing.T) {
 	t.Run("setup server", func(t *testing.T) {
@@ -33,9 +42,7 @@ func TestServer(t *testing.T) {
 					t.Error(err)
 				}
 
-				assert.NotEqual(t, 404, res.StatusCode)
-				assert.Equal(t, 200, res.StatusCode)
-				assert.Equal(t, res.Header["Content-Type"], []string{"text/html; charset=utf-8"})
+				snaps.MatchSnapshot(t, res.StatusCode, res.Header["Content-Type"])
 			})
 
 			t.Run("swagger route should be enabled", func(t *testing.T) {
@@ -55,9 +62,7 @@ func TestServer(t *testing.T) {
 					t.Error(err)
 				}
 
-				assert.NotEqual(t, 404, res.StatusCode)
-				assert.Equal(t, 200, res.StatusCode)
-				assert.Equal(t, res.Header["Content-Type"], []string{"text/html"})
+				snaps.MatchSnapshot(t, res.StatusCode, res.Header["Content-Type"])
 			})
 		})
 
@@ -125,8 +130,7 @@ func TestServer(t *testing.T) {
 			}
 
 			body, _ := ioutil.ReadAll(res.Body)
-			assert.Equal(t, 200, res.StatusCode)
-			assert.Equal(t, []byte("Hello World from template"), body)
+			snaps.MatchSnapshot(t, res.StatusCode, string(body))
 		})
 
 		t.Run("[/hello/:name] should greet with name", func(t *testing.T) {
@@ -147,8 +151,7 @@ func TestServer(t *testing.T) {
 			}
 
 			body, _ := ioutil.ReadAll(res.Body)
-			assert.Equal(t, 200, res.StatusCode)
-			assert.Equal(t, []byte("Hello test 👋"), body)
+			snaps.MatchSnapshot(t, res.StatusCode, string(body))
 		})
 
 		t.Run("[/health] should respond healthy", func(t *testing.T) {
