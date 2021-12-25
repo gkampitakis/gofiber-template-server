@@ -41,7 +41,10 @@ help:
 	@echo
 
 test: lint
-	go test ./... -count=1
+	go test ./... -count=1 -cover -race -v
+
+update-snaps:
+	UPDATE_SNAPS=true go test ./... -count=1 -cover -race -v
 
 update-swagger:
 	~/go/bin/swag init ./...
