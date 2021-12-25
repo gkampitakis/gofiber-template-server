@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/gkampitakis/gofiber-template-server/compare/v1.1.0...v1.2.0) (2021-12-25)
+
+
+### Bug Fixes
+
+* use snapshot testing ([b8dcdc1](https://github.com/gkampitakis/gofiber-template-server/commit/b8dcdc145bd57a3f6e77e49894c1926f46be537a))
+
+
+### Features
+
+* update file structure ([e57ab7e](https://github.com/gkampitakis/gofiber-template-server/commit/e57ab7ef16cd1dd7d1e2949f57b218ab572008e1))
+
 # [1.1.0](https://github.com/gkampitakis/gofiber-template-server/compare/v1.0.3...v1.1.0) (2021-11-11)
 
 
