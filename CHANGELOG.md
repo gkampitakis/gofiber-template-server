@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/gkampitakis/gofiber-template-server/compare/v1.2.0...v1.2.1) (2022-01-01)
+
+
+### Bug Fixes
+
+* include go mod tidy in renovate ([46b48a8](https://github.com/gkampitakis/gofiber-template-server/commit/46b48a8bbde5b3bd723fe502e8a500aea4a8451e))
+
 # [1.2.0](https://github.com/gkampitakis/gofiber-template-server/compare/v1.1.0...v1.2.0) (2021-12-25)
 
 
