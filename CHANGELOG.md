@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/gkampitakis/gofiber-template-server/compare/v1.2.1...v1.2.2) (2022-02-01)
+
+
+### Bug Fixes
+
+* **swagger:** update breaking change handlerDefault ([25ac70d](https://github.com/gkampitakis/gofiber-template-server/commit/25ac70d404f5b18db26dfd5afa15cfbcab02e8ae))
+
 ## [1.2.1](https://github.com/gkampitakis/gofiber-template-server/compare/v1.2.0...v1.2.1) (2022-01-01)
 
 
