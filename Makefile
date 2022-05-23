@@ -10,7 +10,7 @@ run: build
 dev: __cp_env
 	nodemon --exec go run main.go --signal SIGTERM
 
-depencies:
+dependencies:
 	go mod download
 
 clean:
@@ -41,7 +41,7 @@ help:
 	@echo
 
 test: lint
-	go test ./... -count=1 -cover -race -v
+	go test ./... -count=1 -cover -race -v -json | tparse --all
 
 update-snaps:
 	UPDATE_SNAPS=true go test ./... -count=1 -cover -race -v
