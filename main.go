@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gkampitakis/gofiber-template-server/app/middleware"
 	"github.com/gkampitakis/gofiber-template-server/app/utils"
 	"github.com/gkampitakis/gofiber-template-server/config"
@@ -53,6 +55,16 @@ func SetupServer(cfg *config.AppConfig) *fiber.App {
 		hc.ShowErrors(),
 		hc.EnableTimeout(),
 	))
+
+	app.Use(
+		// Handling 404
+		func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusNotFound).JSON(map[string]interface{}{
+				"status":  http.StatusNotFound,
+				"message": "Not found",
+			})
+		},
+	)
 
 	return app
 }
