@@ -3,7 +3,7 @@ module github.com/gkampitakis/gofiber-template-server
 go 1.17
 
 require (
-	github.com/gofiber/fiber/v2 v2.31.0
+	github.com/gofiber/fiber/v2 v2.34.0
 	github.com/joho/godotenv v1.4.0
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
@@ -11,11 +11,11 @@ require (
 )
 
 require (
-	github.com/arsmn/fiber-swagger/v2 v2.31.0
-	github.com/gkampitakis/fiber-modules v1.1.4
-	github.com/gkampitakis/go-snaps v0.2.3
+	github.com/arsmn/fiber-swagger/v2 v2.31.1
+	github.com/gkampitakis/fiber-modules v1.1.5
+	github.com/gkampitakis/go-snaps v0.3.2
 	github.com/stretchr/testify v1.7.1
-	github.com/swaggo/swag v1.8.1
+	github.com/swaggo/swag v1.8.2
 )
 
 require (
@@ -35,16 +35,16 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rogpeppe/go-internal v1.8.0 // indirect
+	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.34.0 // indirect
+	github.com/valyala/fasthttp v1.37.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
+	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.7 // indirect
+	golang.org/x/tools v0.1.10 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
