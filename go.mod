@@ -3,7 +3,7 @@ module github.com/gkampitakis/gofiber-template-server
 go 1.17
 
 require (
-	github.com/gofiber/fiber/v2 v2.34.0
+	github.com/gofiber/fiber/v2 v2.34.1
 	github.com/joho/godotenv v1.4.0
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
@@ -12,10 +12,10 @@ require (
 
 require (
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
-	github.com/gkampitakis/fiber-modules v1.1.6
-	github.com/gkampitakis/go-snaps v0.3.2
-	github.com/stretchr/testify v1.7.1
-	github.com/swaggo/swag v1.8.2
+	github.com/gkampitakis/fiber-modules v1.1.7
+	github.com/gkampitakis/go-snaps v0.3.4
+	github.com/stretchr/testify v1.8.0
+	github.com/swaggo/swag v1.8.3
 )
 
 require (
@@ -43,5 +43,5 @@ require (
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/tools v0.1.10 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
